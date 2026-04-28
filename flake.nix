@@ -23,6 +23,7 @@
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             rtl-sdr
+            ffmpeg
 
             # Rust toolchain (equivalent to languages.rust.enable = true)
             rustc

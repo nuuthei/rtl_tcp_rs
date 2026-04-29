@@ -70,8 +70,6 @@ fn handle_stream_fm_demod(mut stream: TcpStream) -> std::io::Result<()> {
     let mut file = File::create("out.raw")?;
     let decim = 5;
 
-    let mut window: VecDeque<f64> = VecDeque::new();
-
     let mut i_prev: f64 = 0.0;
     let mut q_prev: f64 = 0.0;
     
@@ -95,9 +93,7 @@ fn handle_stream_fm_demod(mut stream: TcpStream) -> std::io::Result<()> {
             i_prev = i_sample;
             q_prev = q_sample;
 
-            let diff_filtered = avg_filter(diff, &mut window);
-
-            let filtered = fir_filter(diff_filtered, &mut fir_state, &fir);
+            let filtered = fir_filter(diff, &mut fir_state, &fir);
 
             out_buffer[j] = filtered;
 

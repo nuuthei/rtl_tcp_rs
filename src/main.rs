@@ -62,7 +62,8 @@ fn handle_stream_fm_demod(mut stream: TcpStream) -> std::io::Result<()> {
     let mut header = [0u8; 12];
     stream.read_exact(&mut header)?;
 
-    let fir = design_lowpass(63, 15_000.0 / 240_000.0);
+    let num_taps = 101;
+    let fir = design_lowpass(num_taps, 15_000.0 / 240_000.0);
     let mut fir_state: Vec<f64> = vec![0.0; 63];
 
     let mut buffer = [0u8; 16384];
@@ -86,12 +87,12 @@ fn handle_stream_fm_demod(mut stream: TcpStream) -> std::io::Result<()> {
             let q_sample = buffer[i + 1] as f64 - 128.0;
 
             let mag = (i_sample*i_sample + q_sample*q_sample).sqrt();
-            let i_new = i_sample / mag;
+            let i_new = i_sample / mag; // normalize
             let q_new = q_sample / mag;
 
             let diff = q_new * i_prev - q_prev * i_new;
-            i_prev = i_sample;
-            q_prev = q_sample;
+            i_prev = i_new; // save normalized values
+            q_prev = q_new;
 
             let filtered = fir_filter(diff, &mut fir_state, &fir);
 
